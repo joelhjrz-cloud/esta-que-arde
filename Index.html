@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Está que Arde! — Ciencia Ciudadana</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>" />
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    /* ════════════════════════════════════════
+       VARIABLES Y RESET
+    ════════════════════════════════════════ */
+    :root {
+      --negro:     #0A0A0A;
+      --carbon:    #111111;
+      --gris-oscuro: #1A1A1A;
+      --gris-medio: #2D2D2D;
+      --gris-borde: #333333;
+      --naranja:   #FF6B1A;
+      --naranja-dim: rgba(255, 107, 26, 0.15);
+      --blanco:    #FFFFFF;
+      --gris-claro: #CCCCCC;
+      --gris-texto: #888888;
+      --fuente-display: 'Space Mono', monospace;
+      --fuente-cuerpo:  'DM Sans', sans-serif;
+      --max-ancho: 1200px;
+      --radio: 0px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      background-color: var(--negro);
+      color: var(--blanco);
+      font-family: var(--fuente-cuerpo);
+      font-weight: 300;
+      line-height: 1.7;
+      /* Textura de ruido sobre todo el body */
+      position: relative;
+    }
+
+    /* Overlay de ruido global */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* Divisores de sección */
+    section + section {
+      border-top: 1px solid var(--naranja);
+    }
+
+    .contenedor {
+      max-width: var(--max-ancho);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ════════════════════════════════════════
+       ANIMACIONES DE SCROLL
+    ════════════════════════════════════════ */
+    .animar {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .animar.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .animar-delay-1 { transition-delay: 0.1s; }
+    .animar-delay-2 { transition-delay: 0.2s; }
+    .animar-delay-3 { transition-delay: 0.3s; }
+    .animar-delay-4 { transition-delay: 0.4s; }
+
+    /* ════════════════════════════════════════
+       NAVBAR
+    ════════════════════════════════════════ */
+    #navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gris-borde);
+      height: 60px;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-inner {
+      max-width: var(--max-ancho);
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-family: var(--fuente-display);
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--blanco);
+      white-space: nowrap;
+    }
+    .nav-logo .acento { color: var(--naranja); }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--fuente-display);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--gris-claro);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--naranja); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--blanco);
+      transition: all 0.3s ease;
+    }
+    .hamburger.activo span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.activo span:nth-child(2) { opacity: 0; }
+    .hamburger.activo span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Menú móvil */
+    .nav-menu-movil {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: var(--gris-oscuro);
+      border-bottom: 1px solid var(--naranja);
+      z-index: 999;
+      padding: 16px 24px;
+      flex-direction: column;
+      gap: 0;
+    }
+    .nav-menu-movil.abierto { display: flex; }
+    .nav-menu-movil a {
+      font-family: var(--fuente-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--gris-claro);
+      padding: 14px 0;
+      border-bottom: 1px solid var(--gris-borde);
+      transition: color 0.2s;
+    }
+    .nav-menu-movil a:last-child { border-bottom: none; }
+    .nav-menu-movil a:hover { color: var(--naranja); }
+
+
+    /* ════════════════════════════════════════
+       SECCIÓN 1 — HERO
+    ════════════════════════════════════════ */
+    #inicio {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 100px 0 80px;
+      background: linear-gradient(160deg, #111111 0%, #0A0A0A 60%, #0D0D0D 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Círculo decorativo de fondo */
+    #inicio::after {
+      content: '';
+      position: absolute;
+      right: -200px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,107,26,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-contenido {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-etiqueta {
+      font-family: var(--fuente-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--naranja);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hero-etiqueta::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--naranja);
+    }
+
+    .hero-titulo {
+      font-family: var(--fuente-display);
+      font-size: clamp(42px, 7vw, 88px);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+    }
+    .hero-titulo .linea-naranja { color: var(--naranja); }
+
+    .hero-subtitulo {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--gris-claro);
+      max-width: 540px;
+      line-height: 1.6;
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+
+    .btn-principal {
+      display: inline-block;
+      background: var(--naranja);
+      color: var(--negro);
+      font-family: var(--fuente-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 16px 36px;
+      border: 2px solid var(--naranja);
+      border-radius: var(--radio);
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-principal:hover {
+      background: transparent;
+      color: var(--naranja);
+    }
+
+    /* Indicador de scroll */
+    .scroll-indicador {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--gris-texto);
+      font-family: var(--fuente-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .scroll-indicador .flecha {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gris-texto), transparent);
+      animation: scroll-pulso 1.8s ease-in-out infinite;
+    }
+    @keyframes scroll-pulso {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ════════════════════════════════════════
+       SECCIÓN 2 — EL PROBLEMA
+    ════════════════════════════════════════ */
+    #problema {
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--negro);
+    }
+
+    /* Elemento decorativo °C enorme */
+    .deco-grande {
+      position: absolute;
+      font-family: var(--fuente-display);
+      font-size: clamp(120px, 20vw, 240px);
+      font-weight: 700;
+      color: #1A1A1A;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+    .deco-grande.derecha { right: -20px; top: 50%; transform: translateY(-50%); }
+
+    .seccion-titulo {
+      font-family: var(--fuente-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .seccion-subtitulo {
+      color: var(--gris-claro);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin-bottom: 56px;
+      line-height: 1.7;
+    }
+
+    .tarjetas-datos {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tarjeta-dato {
+      background: var(--gris-oscuro);
+      border-left: 3px solid var(--naranja);
+      padding: 32px 28px;
+      transition: border-left-color 0.3s, background 0.3s;
+    }
+    .tarjeta-dato:hover {
+      background: #202020;
+    }
+    .tarjeta-dato .numero {
+      font-family: var(--fuente-display);
+      font-size: clamp(2.5rem, 5vw, 3.8rem);
+      font-weight: 700;
+      color: var(--naranja);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .tarjeta-dato .etiqueta {
+      font-size: 0.95rem;
+      color: var(--gris-claro);
+      line-height: 1.5;
+    }
+    .tarjeta-dato.fria .numero { color: #88CCAA; }
+    .tarjeta-dato.fria { border-left-color: #88CCAA; }
+
+    .texto-problema {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+    }
+    .texto-problema p {
+      color: var(--gris-claro);
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .texto-problema strong { color: var(--blanco); font-weight: 500; }
+    .texto-problema a {
+      color: var(--naranja);
+      text-decoration: none;
+      border-bottom: 1px solid var(--naranja);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .texto-problema a:hover {
+      color: transparent;
+      background: linear-gradient(90deg, var(--naranja), transparent);
+      background-clip: text;
+      -webkit-background-clip: text;
+      border-color: transparent;
+    }
+
+    /* ════════════════════════════════════════
+       SECCIÓN 3 — MAPA
+    ════════════════════════════════════════ */
+    #mapa {
+      padding: 100px 0;
+      background: var(--carbon);
+    }
+
+    .mapa-wrapper {
+      position: relative;
+      margin-top: 40px;
+      border: 1px solid var(--gris-borde);
+    }
+
+    #leaflet-mapa {
+      height: 480px;
+      width: 100%;
+      z-index: 1;
+    }
+
+    .leyenda-mapa {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding: 16px 20px;
+      background: var(--gris-oscuro);
+      border: 1px solid var(--gris-borde);
+    }
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--gris-claro);
+      font-family: var(--fuente-display);
+    }
+    .leyenda-punto {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .aviso-mapa {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: var(--gris-texto);
+      font-family: var(--fuente-display);
+      letter-spacing: 0.02em;
+    }
+    .aviso-mapa span {
+      color: var(--naranja);
+      margin-right: 6px;
+    }
+
+    /* ════════════════════════════════════════
+       SECCIÓN 4 — FORMULARIO WIZARD
+    ════════════════════════════════════════ */
+    #reporte {
+      padding: 100px 0;
+      background: var(--negro);
+    }
+
+    .wizard-contenedor {
+      max-width: 640px;
+      margin: 48px auto 0;
+    }
+
+    /* Barra de progreso */
+    .progreso-barra-track {
+      height: 3px;
+      background: var(--gris-medio);
+      margin-bottom: 48px;
+      position: relative;
+    }
+    .progreso-barra-fill {
+      height: 100%;
+      background: var(--naranja);
+      transition: width 0.5s ease;
+    }
+    .progreso-texto {
+      position: absolute;
+      right: 0;
+      top: 8px;
+      font-family: var(--fuente-display);
+      font-size: 0.65rem;
+      color: var(--gris-texto);
+      letter-spacing: 0.08em;
+    }
+
+    /* Pasos */
+    .paso {
+      display: none;
+      animation: fade-paso 0.4s ease;
+    }
+    .paso.activo { display: block; }
+
+    @keyframes fade-paso {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .paso-titulo {
+      font-family: var(--fuente-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--blanco);
+      line-height: 1.3;
+    }
+    .paso-nota {
+      font-size: 0.8rem;
+      color: var(--gris-texto);
+      margin-bottom: 28px;
+      font-family: var(--fuente-display);
+    }
+
+    /* Input texto */
+    .campo-texto {
+      width: 100%;
+      background: var(--gris-oscuro);
+      border: 1px solid var(--gris-borde);
+      border-radius: var(--radio);
+      color: var(--blanco);
+      font-family: var(--fuente-cuerpo);
+      font-size: 1rem;
+      padding: 16px 20px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .campo-texto:focus { border-color: var(--naranja); }
+    .campo-texto::placeholder { color: var(--gris-texto); }
+
+    /* Textarea */
+    textarea.campo-texto {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* Opciones visuales */
+    .opciones-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .opciones-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    .opcion-btn {
+      background: var(--gris-oscuro);
+      border: 1px solid var(--gris-borde);
+      border-radius: var(--radio);
+      padding: 20px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.25s, background 0.25s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--gris-claro);
+      font-family: var(--fuente-cuerpo);
+      font-size: 0.88rem;
+    }
+    .opcion-btn .emoji { font-size: 1.8rem; line-height: 1; }
+    .opcion-btn:hover {
+      border-color: var(--naranja);
+      background: var(--naranja-dim);
+    }
+    .opcion-btn.seleccionado {
+      border-color: var(--naranja);
+      background: var(--naranja-dim);
+      color: var(--blanco);
+    }
+
+    /* Navegación del wizard */
+    .wizard-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      justify-content: space-between;
+    }
+
+    .btn-secundario {
+      background: transparent;
+      color: var(--gris-claro);
+      font-family: var(--fuente-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      border: 1px solid var(--gris-borde);
+      border-radius: var(--radio);
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-secundario:hover {
+      border-color: var(--gris-claro);
+      color: var(--blanco);
+    }
+
+    .btn-avanzar {
+      flex: 1;
+      background: var(--naranja);
+      color: var(--negro);
+      font-family: var(--fuente-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      border: 2px solid var(--naranja);
+      border-radius: var(--radio);
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-avanzar:hover {
+      background: transparent;
+      color: var(--naranja);
+    }
+
+    /* Mensaje de error */
+    .error-msg {
+      color: #FF4444;
+      font-size: 0.78rem;
+      font-family: var(--fuente-display);
+      margin-top: 8px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* Confirmación */
+    .confirmacion {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      animation: fade-paso 0.5s ease;
+    }
+    .confirmacion.visible { display: block; }
+    .confirmacion .check {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .confirmacion h3 {
+      font-family: var(--fuente-display);
+      font-size: 1.3rem;
+      color: var(--naranja);
+      margin-bottom: 12px;
+    }
+    .confirmacion p {
+      color: var(--gris-claro);
+      font-size: 0.95rem;
+    }
+
+    /* ════════════════════════════════════════
+       SECCIÓN 5 — CONEXIÓN SOLAR
+    ════════════════════════════════════════ */
+    #solar {
+      padding: 100px 0;
+      background: var(--carbon);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .solar-deco {
+      position: absolute;
+      font-family: var(--fuente-display);
+      font-size: clamp(80px, 15vw, 180px);
+      font-weight: 700;
+      color: #151515;
+      top: 20px;
+      left: -20px;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .tarjetas-solar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tarjeta-solar {
+      background: var(--gris-oscuro);
+      border: 1px solid var(--gris-borde);
+      padding: 36px 24px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .tarjeta-solar:hover {
+      border-color: var(--naranja);
+      transform: translateY(-4px);
+    }
+    .tarjeta-solar .icono {
+      font-size: 2rem;
+      margin-bottom: 18px;
+      display: block;
+    }
+    .tarjeta-solar h3 {
+      font-family: var(--fuente-display);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--blanco);
+    }
+    .tarjeta-solar p {
+      font-size: 0.9rem;
+      color: var(--gris-claro);
+      line-height: 1.6;
+    }
+
+    .ecuacion-solar {
+      background: var(--naranja-dim);
+      border: 1px solid var(--naranja);
+      padding: 36px 32px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .ecuacion-solar p {
+      font-family: var(--fuente-display);
+      font-size: clamp(0.85rem, 2vw, 1.2rem);
+      color: var(--blanco);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+    }
+    .ecuacion-solar span { color: var(--naranja); }
+
+    /* ════════════════════════════════════════
+       SECCIÓN 6 — DATOS ABIERTOS
+    ════════════════════════════════════════ */
+    #datos {
+      padding: 100px 0;
+      background: var(--negro);
+    }
+
+    .datos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .datos-texto p {
+      color: var(--gris-claro);
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .btn-descarga {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--naranja);
+      font-family: var(--fuente-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 16px 28px;
+      border: 2px solid var(--naranja);
+      border-radius: var(--radio);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+    .btn-descarga:hover {
+      background: var(--naranja);
+      color: var(--negro);
+    }
+
+    .audiencia-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .audiencia-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px;
+      background: var(--gris-oscuro);
+      border-left: 2px solid var(--gris-borde);
+      transition: border-left-color 0.3s;
+    }
+    .audiencia-item:hover { border-left-color: var(--naranja); }
+    .audiencia-item .icono { font-size: 1.4rem; flex-shrink: 0; }
+    .audiencia-item h4 {
+      font-family: var(--fuente-display);
+      font-size: 0.85rem;
+      color: var(--blanco);
+      margin-bottom: 4px;
+    }
+    .audiencia-item p {
+      font-size: 0.82rem;
+      color: var(--gris-texto);
+      line-height: 1.5;
+    }
+
+    /* ════════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════════ */
+    footer {
+      border-top: 2px solid var(--naranja);
+      background: var(--gris-oscuro);
+      padding: 40px 0;
+      text-align: center;
+    }
+    footer .logo-footer {
+      font-family: var(--fuente-display);
+      font-size: 1rem;
+      color: var(--blanco);
+      margin-bottom: 8px;
+    }
+    footer .logo-footer .acento { color: var(--naranja); }
+    footer p {
+      font-size: 0.78rem;
+      color: var(--gris-texto);
+      font-family: var(--fuente-display);
+      letter-spacing: 0.04em;
+    }
+
+    /* ════════════════════════════════════════
+       RESPONSIVE — TABLET (768px)
+    ════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .tarjetas-solar { grid-template-columns: 1fr 1fr; }
+      .datos-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .tarjetas-datos { grid-template-columns: 1fr; }
+      .tarjetas-solar { grid-template-columns: 1fr; }
+
+      #leaflet-mapa { height: 300px; }
+
+      .opciones-grid { grid-template-columns: 1fr 1fr; }
+      .opciones-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+
+      .datos-grid { grid-template-columns: 1fr; }
+
+      .deco-grande { display: none; }
+      .solar-deco { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .opciones-grid { grid-template-columns: 1fr; }
+      .opciones-grid.cols-3 { grid-template-columns: 1fr; }
+      .hero-titulo { font-size: 38px; }
+    }
+
+    /* Estilo overrides para Leaflet (tema oscuro) */
+    .leaflet-container {
+      background: #1a1a1a !important;
+    }
+    .leaflet-tile {
+      filter: brightness(0.7) saturate(0.6);
+    }
+    .leaflet-control-zoom a {
+      background: var(--gris-oscuro) !important;
+      color: var(--blanco) !important;
+      border-color: var(--gris-borde) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: var(--gris-medio) !important;
+    }
+    .leaflet-control-attribution {
+      background: rgba(10,10,10,0.8) !important;
+      color: var(--gris-texto) !important;
+    }
+    .leaflet-control-attribution a { color: var(--naranja) !important; }
+  </style>
+</head>
+
+<body>
+
+    <!-- ══════════ NAVBAR ══════════ -->
+  <nav id="navbar" aria-label="Navegación principal">
+    <div class="nav-inner">
+      <a href="#inicio" class="nav-logo">
+        <span class="acento">¡</span>Está que Arde!
+      </a>
+      <ul class="nav-links">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#problema">El problema</a></li>
+        <li><a href="#mapa">Mapa</a></li>
+        <li><a href="#reporte">Reporta</a></li>
+        <li><a href="#solar">Solar</a></li>
+        <li><a href="#datos">Datos</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Menú móvil -->
+  <div class="nav-menu-movil" id="menu-movil" role="navigation" aria-label="Menú móvil">
+    <a href="#inicio" onclick="cerrarMenu()">Inicio</a>
+    <a href="#problema" onclick="cerrarMenu()">El problema</a>
+    <a href="#mapa" onclick="cerrarMenu()">Mapa colaborativo</a>
+    <a href="#reporte" onclick="cerrarMenu()">Reporta tu zona</a>
+    <a href="#solar" onclick="cerrarMenu()">Conexión solar</a>
+    <a href="#datos" onclick="cerrarMenu()">Datos abiertos</a>
+  </div>
+
+  <!-- ══════════ HERO ══════════ -->
+  <section id="inicio">
+    <div class="contenedor hero-contenido">
+      <p class="hero-etiqueta animar">Ciencia ciudadana · CDMX</p>
+      <h1 class="hero-titulo animar animar-delay-1">
+        Mapeando<br>
+        <span class="linea-naranja">el calor.</span>
+      </h1>
+      <p class="hero-subtitulo animar animar-delay-2">
+        Ciencia ciudadana para visibilizar las islas de calor urbano en México y transformar ese calor en oportunidad solar.
+      </p>
+      <a href="#reporte" class="btn-principal animar animar-delay-3" aria-label="Ir al formulario de reporte">
+        Reporta tu zona →
+      </a>
+    </div>
+    <div class="scroll-indicador" aria-hidden="true">
+      <div class="flecha"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ══════════ PROBLEMA ══════════ -->
+  <section id="problema">
+    <div class="contenedor">
+      <span class="deco-grande derecha" aria-hidden="true">°C</span>
+
+      <h2 class="seccion-titulo animar">El problema</h2>
+      <p class="seccion-subtitulo animar animar-delay-1">
+        Las islas de calor urbano concentran temperaturas extremas en colonias enteras. El asfalto absorbe, el concreto retiene, y la ciudad hierve.
+      </p>
+
+      <div class="tarjetas-datos">
+        <div class="tarjeta-dato animar animar-delay-1">
+          <div class="numero">60 °C</div>
+          <div class="etiqueta">Temperatura superficial del asfalto sin sombra en pleno sol</div>
+        </div>
+        <div class="tarjeta-dato fria animar animar-delay-2">
+          <div class="numero">30 °C</div>
+          <div class="etiqueta">Temperatura en una zona arbolada cercana, mismo día y hora</div>
+        </div>
+      </div>
+
+      <div class="texto-problema animar animar-delay-2">
+        <p>
+          Las <strong>islas de calor urbano (ICU)</strong> ocurren porque el asfalto, el concreto y la falta de vegetación absorben y retienen radiación solar en lugar de reflectarla o convertirla en algo útil.
+        </p>
+        <p>
+          Esto tiene dos consecuencias directas: <strong>mayor demanda energética</strong> por climatización en hogares y negocios, y <strong>alta irradiancia acumulada</strong> sobre superficies que hoy no aprovechan ese recurso.
+        </p>
+        <p>
+          Donde más calor hay, más energía solar incide. El reto es transformar ese excedente en electricidad fotovoltaica.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ MAPA ══════════ -->
+  <section id="mapa">
+    <div class="contenedor">
+      <h2 class="seccion-titulo animar">Mapa colaborativo</h2>
+      <p class="seccion-subtitulo animar animar-delay-1">
+        Visualización en tiempo real de reportes ciudadanos sobre islas de calor urbano.
+      </p>
+
+      <div class="mapa-wrapper animar animar-delay-2">
+        <div id="leaflet-mapa" role="application" aria-label="Mapa interactivo de calor urbano en CDMX"></div>
+      </div>
+
+      <div class="leyenda-mapa animar animar-delay-3">
+        <div class="leyenda-item">
+          <div class="leyenda-punto" style="background:#FF3300;"></div>
+          Muy caliente / Insoportable
+        </div>
+        <div class="leyenda-item">
+          <div class="leyenda-punto" style="background:#FF8C00;"></div>
+          Caliente
+        </div>
+        <div class="leyenda-item">
+          <div class="leyenda-punto" style="background:#FFD700;"></div>
+          Templado
+        </div>
+        <div class="leyenda-item">
+          <div class="leyenda-punto" style="background:#44AA66;"></div>
+          Fresco / Con sombra
+        </div>
+      </div>
+      <p class="aviso-mapa animar animar-delay-4">
+        <span>⚠</span> Los reportes en el mapa son datos de ejemplo. Tu reporte se añadirá aquí de forma anónima, sin ubicación exacta.
+      </p>
+    </div>
+</section>
+
+  <!-- ══════════ FORMULARIO WIZARD ══════════ -->
+  <section id="reporte">
+    <div class="contenedor">
+      <h2 class="seccion-titulo animar">Reporta tu zona</h2>
+      <p class="seccion-subtitulo animar animar-delay-1">
+        Anónimo · Sin ubicación exacta · 2 minutos
+      </p>
+
+      <div class="wizard-contenedor animar animar-delay-2">
+
+        <!-- Barra de progreso -->
+        <div class="progreso-barra-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="20" id="barra-progreso-track">
+          <div class="progreso-barra-fill" id="barra-progreso" style="width: 20%;"></div>
+          <span class="progreso-texto" id="progreso-texto">Paso 1 de 5</span>
+        </div>
+
+        <!-- PASO 1 -->
+        <div class="paso activo" id="paso-1">
+          <p class="paso-titulo">¿En qué colonia o zona te encuentras?</p>
+          <p class="paso-nota">No pedimos tu dirección exacta.</p>
+          <input
+            type="text"
+            class="campo-texto"
+            id="colonia"
+            placeholder="Ej. Iztapalapa, Del Valle, Tepito…"
+            aria-label="Colonia o zona"
+            autocomplete="off"
+          />
+          <p class="error-msg" id="error-1">Por favor escribe tu colonia o zona para continuar.</p>
+        </div>
+
+        <!-- PASO 2 -->
+        <div class="paso" id="paso-2">
+          <p class="paso-titulo">¿Cómo describes el calor en tu calle ahora mismo?</p>
+          <p class="paso-nota">Elige la opción que mejor lo describe.</p>
+          <div class="opciones-grid" role="group" aria-label="Nivel de calor percibido">
+            <button class="opcion-btn" data-grupo="calor" data-valor="insoportable" aria-pressed="false">
+              <span class="emoji">🔥</span>Insoportable
+            </button>
+            <button class="opcion-btn" data-grupo="calor" data-valor="muy-caliente" aria-pressed="false">
+              <span class="emoji">☀️</span>Muy caliente
+            </button>
+            <button class="opcion-btn" data-grupo="calor" data-valor="caliente" aria-pressed="false">
+              <span class="emoji">🌤</span>Caliente
+            </button>
+            <button class="opcion-btn" data-grupo="calor" data-valor="templado" aria-pressed="false">
+              <span class="emoji">🌿</span>Templado
+            </button>
+          </div>
+          <p class="error-msg" id="error-2">Selecciona una opción para continuar.</p>
+        </div>
+
+        <!-- PASO 3 -->
+        <div class="paso" id="paso-3">
+          <p class="paso-titulo">¿Hay árboles o sombra en tu calle?</p>
+          <p class="paso-nota">Una sola elección.</p>
+          <div class="opciones-grid cols-3" role="group" aria-label="Presencia de árboles y sombra">
+            <button class="opcion-btn" data-grupo="sombra" data-valor="bastante" aria-pressed="false">
+              <span class="emoji">🌳</span>Sí, bastante
+            </button>
+            <button class="opcion-btn" data-grupo="sombra" data-valor="poco" aria-pressed="false">
+              <span class="emoji">🌱</span>Poco
+            </button>
+            <button class="opcion-btn" data-grupo="sombra" data-valor="nada" aria-pressed="false">
+              <span class="emoji">❌</span>Nada de sombra
+            </button>
+          </div>
+          <p class="error-msg" id="error-3">Selecciona una opción para continuar.</p>
+        </div>
+
+        <!-- PASO 4 -->
+        <div class="paso" id="paso-4">
+          <p class="paso-titulo">¿Qué superficie domina en tu zona?</p>
+          <p class="paso-nota">El material más presente en calles y banquetas.</p>
+          <div class="opciones-grid" role="group" aria-label="Tipo de superficie dominante">
+            <button class="opcion-btn" data-grupo="superficie" data-valor="asfalto" aria-pressed="false">
+              <span class="emoji">🛣</span>Asfalto
+            </button>
+            <button class="opcion-btn" data-grupo="superficie" data-valor="concreto" aria-pressed="false">
+              <span class="emoji">🏗</span>Concreto
+            </button>
+            <button class="opcion-btn" data-grupo="superficie" data-valor="tierra" aria-pressed="false">
+              <span class="emoji">🌱</span>Tierra / pasto
+            </button>
+            <button class="opcion-btn" data-grupo="superficie" data-valor="mixto" aria-pressed="false">
+              <span class="emoji">🏢</span>Mixto
+            </button>
+          </div>
+          <p class="error-msg" id="error-4">Selecciona una opción para continuar.</p>
+        </div>
+
+        <!-- PASO 5 -->
+        <div class="paso" id="paso-5">
+          <p class="paso-titulo">¿Algo más que quieras añadir? <em style="font-weight:300;font-style:normal;color:var(--gris-texto)">(opcional)</em></p>
+          <p class="paso-nota">Cualquier observación sobre tu zona es valiosa.</p>
+          <textarea
+            class="campo-texto"
+            id="comentario"
+            placeholder="Ej. Hay una fábrica cerca, muchos estacionamientos, sin parques…"
+            aria-label="Comentario libre opcional"
+          ></textarea>
+        </div>
+
+        <!-- Confirmación -->
+        <div class="confirmacion" id="confirmacion">
+          <div class="check">✅</div>
+          <h3>¡Reporte recibido!</h3>
+          <p>Tu contribución ya está en el mapa. Gracias por mapear el calor de tu colonia.</p>
+        </div>
+
+        <!-- Botones de navegación -->
+        <div class="wizard-nav" id="wizard-nav">
+          <button class="btn-secundario" id="btn-atras" onclick="pasoAtras()" aria-label="Regresar al paso anterior" style="display:none;">
+            ← Atrás
+          </button>
+          <button class="btn-avanzar" id="btn-siguiente" onclick="pasoSiguiente()" aria-label="Avanzar al siguiente paso">
+            Siguiente →
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ CONEXIÓN SOLAR ══════════ -->
+  <section id="solar">
+    <div class="contenedor">
+      <span class="solar-deco" aria-hidden="true">☀</span>
+      <h2 class="seccion-titulo animar">Del calor<br>al kilovatt</h2>
+      <p class="seccion-subtitulo animar animar-delay-1">
+        El mapa de calor ciudadano es también un mapa de oportunidad energética.
+      </p>
+
+      <div class="tarjetas-solar">
+        <div class="tarjeta-solar animar animar-delay-1">
+          <span class="icono">☀️</span>
+          <h3>Alta irradiancia</h3>
+          <p>Donde más calor hay, más sol directo incide. Esas zonas tienen el mayor potencial de generación fotovoltaica disponible.</p>
+        </div>
+        <div class="tarjeta-solar animar animar-delay-2">
+          <span class="icono">🏠</span>
+          <h3>Azoteas prioritarias</h3>
+          <p>El mapa identifica zonas con alto retorno solar para instalar paneles en vivienda popular donde los diagnósticos técnicos no llegan.</p>
+        </div>
+        <div class="tarjeta-solar animar animar-delay-3">
+          <span class="icono">👥</span>
+          <h3>Ciudadanía activa</h3>
+          <p>De consumidores de energía a productores de conocimiento ambiental que informa decisiones de política pública.</p>
+        </div>
+      </div>
+
+      <div class="ecuacion-solar animar animar-delay-2">
+        <p>
+          Calor alto <span>+</span> sin sombra <span>=</span><br>
+          <strong>oportunidad fotovoltaica</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ DATOS ABIERTOS ══════════ -->
+  <section id="datos">
+    <div class="contenedor">
+      <h2 class="seccion-titulo animar">Datos abiertos</h2>
+
+      <div class="datos-grid">
+        <div class="datos-texto animar animar-delay-1">
+          <p>
+            Todos los reportes ciudadanos son públicos. Descarga el dataset completo para investigación, periodismo o política pública. Sin restricciones, sin registro.
+          </p>
+          <button class="btn-descarga" id="btn-csv" aria-label="Descargar dataset CSV de ejemplo">
+            Descargar dataset (.csv) ↓
+          </button>
+        </div>
+        <div class="audiencia-lista animar animar-delay-2">
+          <div class="audiencia-item">
+            <span class="icono">🔬</span>
+            <div>
+              <h4>Investigadores</h4>
+              <p>Datos de resolución de colonia para estudios de clima urbano y fotovoltaica distribuida.</p>
+            </div>
+          </div>
+          <div class="audiencia-item">
+            <span class="icono">📰</span>
+            <div>
+              <h4>Periodistas</h4>
+              <p>Visualiza la desigualdad térmica entre colonias y su relación con el acceso a energía limpia.</p>
+            </div>
+          </div>
+          <div class="audiencia-item">
+            <span class="icono">🏛</span>
+            <div>
+              <h4>Gobierno</h4>
+              <p>Identifica zonas prioritarias para programas de arbolado, techos frescos y energía solar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer>
+    <div class="contenedor">
+      <div class="logo-footer"><span class="acento">¡</span>Está que Arde! — Proyecto de Ciencia Ciudadana</div>
+      <p>Tarea 6 · Energías Renovables y Sociedad</p>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    /* ════════════════════════════════════════
+       HAMBURGER MENU
+    ════════════════════════════════════════ */
+    const hamburger = document.getElementById('hamburger');
+    const menuMovil = document.getElementById('menu-movil');
+
+    hamburger.addEventListener('click', () => {
+      const abierto = menuMovil.classList.toggle('abierto');
+      hamburger.classList.toggle('activo');
+      hamburger.setAttribute('aria-expanded', abierto);
+    });
+
+    function cerrarMenu() {
+      menuMovil.classList.remove('abierto');
+      hamburger.classList.remove('activo');
+      hamburger.setAttribute('aria-expanded', false);
+    }
+
+    /* ════════════════════════════════════════
+       ANIMACIONES DE SCROLL
+    ════════════════════════════════════════ */
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach(entrada => {
+        if (entrada.isIntersecting) {
+          entrada.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animar').forEach(el => observador.observe(el));
+
+    /* ════════════════════════════════════════
+       MAPA LEAFLET (datos de ejemplo, sin geolocalización)
+    ════════════════════════════════════════ */
+    const mapa = L.map('leaflet-mapa', {
+      center: [19.4326, -99.1332],
+      zoom: 12,
+      zoomControl: true,
+      scrollWheelZoom: false
+    });
+
+    // Capa de mosaicos (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(mapa);
+
+    // Función para crear ícono de marcador con color
+    function crearIcono(color) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: ${color};
+          border: 2px solid rgba(255,255,255,0.7);
+          box-shadow: 0 0 8px ${color};
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+    }
+
+    // Reportes ficticios de ejemplo
+    const reportesFicticios = [
+      { lat: 19.4720, lng: -99.1311, color: '#FF3300', etiqueta: 'Insoportable · Asfalto · Sin sombra', colonia: 'Tepito' },
+      { lat: 19.3910, lng: -99.0780, color: '#FF3300', etiqueta: 'Muy caliente · Concreto · Sin sombra', colonia: 'Iztapalapa' },
+      { lat: 19.4284, lng: -99.1571, color: '#FF8C00', etiqueta: 'Caliente · Mixto · Poco sombra', colonia: 'Condesa' },
+      { lat: 19.4050, lng: -99.1700, color: '#FFD700', etiqueta: 'Caliente · Concreto · Algo de sombra', colonia: 'Coyoacán' },
+      { lat: 19.4500, lng: -99.1500, color: '#FF8C00', etiqueta: 'Muy caliente · Asfalto · Sin sombra', colonia: 'Doctores' },
+      { lat: 19.4450, lng: -99.2100, color: '#44AA66', etiqueta: 'Templado · Pasto · Bastante sombra', colonia: 'Cuajimalpa' },
+      { lat: 19.3650, lng: -99.1600, color: '#FF3300', etiqueta: 'Insoportable · Asfalto · Sin sombra', colonia: 'Xochimilco' },
+      { lat: 19.4800, lng: -99.2000, color: '#FFD700', etiqueta: 'Caliente · Mixto · Poco sombra', colonia: 'Azcapotzalco' },
+      { lat: 19.3500, lng: -99.0500, color: '#FF3300', etiqueta: 'Muy caliente · Asfalto · Sin sombra', colonia: 'Tláhuac' },
+      { lat: 19.5100, lng: -99.1200, color: '#44AA66', etiqueta: 'Templado · Pasto · Bastante sombra', colonia: 'Lindavista' },
+      { lat: 19.4200, lng: -99.1050, color: '#FF8C00', etiqueta: 'Caliente · Concreto · Sin sombra', colonia: 'Iztacalco' },
+      { lat: 19.4600, lng: -99.0900, color: '#FF3300', etiqueta: 'Insoportable · Asfalto · Sin sombra', colonia: 'Venustiano Carranza' },
+    ];
+
+    // Añadir marcadores al mapa
+    reportesFicticios.forEach(r => {
+      L.marker([r.lat, r.lng], { icon: crearIcono(r.color) })
+        .addTo(mapa)
+        .bindPopup(`
+          <div style="font-family:monospace; font-size:0.78rem; color:#222; line-height:1.5;">
+            <strong>${r.colonia}</strong><br>
+            ${r.etiqueta}
+          </div>
+        `);
+    });
+
+    /* ════════════════════════════════════════
+       WIZARD DE FORMULARIO
+    ════════════════════════════════════════ */
+    let pasoActual = 1;
+    const totalPasos = 5;
+
+    // Almacena respuestas
+    const respuestas = {
+      colonia: '',
+      calor: '',
+      sombra: '',
+      superficie: '',
+      comentario: ''
+    };
+
+    // Manejo de botones de opción múltiple
+    document.querySelectorAll('.opcion-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const grupo = btn.dataset.grupo;
+        // Desmarcar los demás del mismo grupo
+        document.querySelectorAll(`.opcion-btn[data-grupo="${grupo}"]`).forEach(b => {
+          b.classList.remove('seleccionado');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        // Marcar el seleccionado
+        btn.classList.add('seleccionado');
+        btn.setAttribute('aria-pressed', 'true');
+        // Guardar respuesta
+        respuestas[grupo] = btn.dataset.valor;
+        // Ocultar error si estaba visible
+        const errorEl = document.getElementById(`error-${pasoActual}`);
+        if (errorEl) errorEl.classList.remove('visible');
+      });
+    });
+
+    function actualizarBarra() {
+      const porcentaje = (pasoActual / totalPasos) * 100;
+      document.getElementById('barra-progreso').style.width = porcentaje + '%';
+      document.getElementById('barra-progreso-track').setAttribute('aria-valuenow', porcentaje);
+      document.getElementById('progreso-texto').textContent = `Paso ${pasoActual} de ${totalPasos}`;
+    }
+
+    function validarPasoActual() {
+      if (pasoActual === 1) {
+        const val = document.getElementById('colonia').value.trim();
+        if (!val) {
+          document.getElementById('error-1').classList.add('visible');
+          return false;
+        }
+        respuestas.colonia = val;
+        document.getElementById('error-1').classList.remove('visible');
+      }
+      if (pasoActual === 2 && !respuestas.calor) {
+        document.getElementById('error-2').classList.add('visible');
+        return false;
+      }
+      if (pasoActual === 3 && !respuestas.sombra) {
+        document.getElementById('error-3').classList.add('visible');
+        return false;
+      }
+      if (pasoActual === 4 && !respuestas.superficie) {
+        document.getElementById('error-4').classList.add('visible');
+        return false;
+      }
+      return true;
+    }
+
+    function pasoSiguiente() {
+      if (!validarPasoActual()) return;
+
+      if (pasoActual === totalPasos) {
+        // Enviar (simulado)
+        respuestas.comentario = document.getElementById('comentario').value;
+        enviarReporte();
+        return;
+      }
+
+      document.getElementById(`paso-${pasoActual}`).classList.remove('activo');
+      pasoActual++;
+      document.getElementById(`paso-${pasoActual}`).classList.add('activo');
+      actualizarBarra();
+
+      // Mostrar botón atrás desde paso 2
+      document.getElementById('btn-atras').style.display = pasoActual > 1 ? 'block' : 'none';
+
+      // Cambiar texto del botón en último paso
+      const btnSig = document.getElementById('btn-siguiente');
+      btnSig.textContent = pasoActual === totalPasos ? 'Enviar reporte →' : 'Siguiente →';
+    }
+
+    function pasoAtras() {
+      document.getElementById(`paso-${pasoActual}`).classList.remove('activo');
+      pasoActual--;
+      document.getElementById(`paso-${pasoActual}`).classList.add('activo');
+      actualizarBarra();
+      document.getElementById('btn-atras').style.display = pasoActual > 1 ? 'block' : 'none';
+      document.getElementById('btn-siguiente').textContent = 'Siguiente →';
+    }
+
+    function enviarReporte() {
+      // Ocultar pasos y navegación
+      document.querySelectorAll('.paso').forEach(p => p.classList.remove('activo'));
+      document.getElementById('wizard-nav').style.display = 'none';
+      document.getElementById('progreso-texto').textContent = '¡Completado!';
+      document.getElementById('barra-progreso').style.width = '100%';
+
+      // Mostrar confirmación
+      document.getElementById('confirmacion').classList.add('visible');
+
+      // Añadir marcador ficticio en el mapa (posición aleatoria cerca del centro)
+      const lat = 19.4326 + (Math.random() - 0.5) * 0.08;
+      const lng = -99.1332 + (Math.random() - 0.5) * 0.08;
+      L.marker([lat, lng], { icon: crearIcono('#FF6B1A') })
+        .addTo(mapa)
+        .bindPopup(`<div style="font-family:monospace;font-size:0.78rem;color:#222"><strong>${respuestas.colonia}</strong><br>Tu reporte</div>`)
+        .openPopup()
+        // Resetear formulario tras 4 segundos
+      setTimeout(() => {
+        resetearWizard();
+      }, 4000);
+    }
+
+    function resetearWizard() {
+      pasoActual = 1;
+      respuestas.colonia = '';
+      respuestas.calor = '';
+      respuestas.sombra = '';
+      respuestas.superficie = '';
+      respuestas.comentario = '';
+
+      document.getElementById('colonia').value = '';
+      document.getElementById('comentario').value = '';
+      document.querySelectorAll('.opcion-btn').forEach(b => {
+        b.classList.remove('seleccionado');
+        b.setAttribute('aria-pressed', 'false');
+      });
+
+      document.getElementById('confirmacion').classList.remove('visible');
+      document.getElementById('wizard-nav').style.display = 'flex';
+      document.getElementById('btn-atras').style.display = 'none';
+      document.getElementById('btn-siguiente').textContent = 'Siguiente →';
+
+      document.getElementById('paso-1').classList.add('activo');
+      actualizarBarra();
+    }
+
+    /* ════════════════════════════════════════
+       DESCARGA DE CSV (generado en el navegador)
+    ════════════════════════════════════════ */
+    document.getElementById('btn-csv').addEventListener('click', () => {
+      const filas = [
+        ['colonia', 'calor_percibido', 'sombra', 'superficie', 'comentario', 'fecha'],
+        ['Tepito', 'insoportable', 'nada', 'asfalto', 'Calle muy transitada', '2025-06-01'],
+        ['Iztapalapa', 'insoportable', 'nada', 'concreto', '', '2025-06-01'],
+        ['Condesa', 'caliente', 'poco', 'mixto', 'Hay parques pero las calles queman', '2025-06-02'],
+        ['Coyoacán', 'caliente', 'bastante', 'concreto', '', '2025-06-02'],
+        ['Doctores', 'muy-caliente', 'nada', 'asfalto', 'Muchos talleres mecánicos', '2025-06-03'],
+        ['Cuajimalpa', 'templado', 'bastante', 'tierra', 'Zona boscosa cercana', '2025-06-03'],
+        ['Xochimilco', 'insoportable', 'nada', 'asfalto', '', '2025-06-04'],
+        ['Azcapotzalco', 'caliente', 'poco', 'mixto', 'Zona industrial', '2025-06-04'],
+        ['Tláhuac', 'muy-caliente', 'nada', 'asfalto', 'Sin un árbol en kilómetros', '2025-06-05'],
+        ['Lindavista', 'templado', 'bastante', 'tierra', '', '2025-06-05'],
+      ];
+
+      // Construir CSV como texto
+      const csvContenido = filas.map(f => f.join(',')).join('\n');
+      const blob = new Blob([csvContenido], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      // Crear enlace temporal y hacer clic
+      const enlace = document.createElement('a');
+      enlace.href = url;
+      enlace.download = 'esta-que-arde-dataset.csv';
+      document.body.appendChild(enlace);
+      enlace.click();
+      document.body.removeChild(enlace);
+      URL.revokeObjectURL(url);
+    });
+
+    /* ════════════════════════════════════════
+       INICIALIZACIÓN
+    ════════════════════════════════════════ */
+    actualizarBarra();
+  </script>
+</body>
+</html>
