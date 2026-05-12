@@ -919,7 +919,15 @@
 @media (max-width: 768px) {
   .fuentes-lista { grid-template-columns: 1fr; }
 }
+</style>
 
+<div class="fuente-item">
+  <span class="fuente-tag">Técnico · Fabricantes FV</span>
+  <p><em>Coeficiente de temperatura en paneles fotovoltaicos.</em> Pérdida de rendimiento de 0.3%–0.5% por cada °C sobre 25°C.</p>
+  <a href="https://mipanelsolar.com/blog/coeficiente-de-temperatura-en-un-panel-solar" target="_blank" rel="noopener" class="fuente-link">mipanelsolar.com →</a>
+</div>
+
+<style>
 /* ════════════════════════════════════════
        FOOTER
     ════════════════════════════════════════ */
@@ -1084,6 +1092,178 @@
   text-underline-offset: 3px;
 }
 .footer-legal button:hover { color: var(--naranja); }
+
+/* ── Sección solar expandida ── */
+.paradoja-bloque {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: center;
+  background: var(--gris-oscuro);
+  border: 1px solid var(--gris-borde);
+  border-left: 4px solid var(--naranja);
+  padding: 40px;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+.paradoja-etiqueta {
+  font-family: var(--fuente-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--naranja);
+  display: block;
+  margin-bottom: 12px;
+}
+.paradoja-bloque h3 {
+  font-family: var(--fuente-display);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--blanco);
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+.paradoja-bloque p {
+  font-size: 0.92rem;
+  color: var(--gris-claro);
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+.paradoja-bloque strong { color: var(--blanco); }
+.paradoja-dato {
+  text-align: center;
+  min-width: 160px;
+  padding: 24px;
+  border-left: 1px solid var(--gris-borde);
+}
+.paradoja-numero {
+  font-family: var(--fuente-display);
+  font-size: clamp(2.5rem, 5vw, 3.8rem);
+  color: var(--naranja);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.paradoja-desc {
+  font-size: 0.75rem;
+  color: var(--gris-texto);
+  line-height: 1.5;
+}
+
+.solar-divisor {
+  height: 1px;
+  background: var(--gris-borde);
+  margin: 56px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.solar-subtitulo {
+  font-family: var(--fuente-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--blanco);
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.realidades-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+.realidad-item {
+  background: var(--gris-oscuro);
+  border: 1px solid var(--gris-borde);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.3s;
+}
+.realidad-item:hover { border-color: var(--naranja); }
+.realidad-icono {
+  font-size: 1.8rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.realidad-item h4 {
+  font-family: var(--fuente-display);
+  font-size: 0.9rem;
+  color: var(--blanco);
+  line-height: 1.3;
+}
+.realidad-item p {
+  font-size: 0.85rem;
+  color: var(--gris-claro);
+  line-height: 1.7;
+  flex: 1;
+}
+.realidad-item strong { color: var(--blanco); }
+.realidad-tag {
+  font-family: var(--fuente-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  display: inline-block;
+  margin-top: 4px;
+}
+.tag-rojo    { background: rgba(255,50,0,0.15);  color: #FF6644; }
+.tag-naranja { background: rgba(255,107,26,0.15); color: var(--naranja); }
+.tag-verde   { background: rgba(68,170,100,0.15); color: #66BB88; }
+
+.mapa-solar-bloque {
+  background: var(--gris-oscuro);
+  border: 1px solid var(--gris-borde);
+  padding: 40px;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+.mapa-solar-bloque h3 {
+  font-family: var(--fuente-display);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--blanco);
+  margin-bottom: 28px;
+  line-height: 1.3;
+}
+.mapa-solar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.mapa-solar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mapa-solar-num {
+  font-family: var(--fuente-display);
+  font-size: 1.8rem;
+  color: var(--naranja);
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.5;
+}
+.mapa-solar-item p {
+  font-size: 0.88rem;
+  color: var(--gris-claro);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .paradoja-bloque { grid-template-columns: 1fr; }
+  .paradoja-dato { border-left: none; border-top: 1px solid var(--gris-borde); padding-top: 24px; }
+  .realidades-grid { grid-template-columns: 1fr; }
+  .mapa-solar-grid { grid-template-columns: 1fr; }
+}
 
   </style>
 </head>
@@ -1374,40 +1554,95 @@
   </section>
 
   <!-- ══════════ CONEXIÓN SOLAR ══════════ -->
-  <section id="solar">
-    <div class="contenedor">
-      <span class="solar-deco" aria-hidden="true">☀</span>
-      <h2 class="seccion-titulo animar">Del calor<br>al kilovatt</h2>
-      <p class="seccion-subtitulo animar animar-delay-1">
-        El mapa de calor ciudadano es también un mapa de oportunidad energética.
-      </p>
+<section id="solar">
+  <div class="contenedor">
+    <span class="solar-deco" aria-hidden="true">☀</span>
+    <h2 class="seccion-titulo animar">Del calor<br>al kilovatt</h2>
+    <p class="seccion-subtitulo animar animar-delay-1">
+      Las zonas más calientes de la ciudad son también las que reciben más sol. Eso es tanto un problema como una oportunidad.
+    </p>
 
-      <div class="tarjetas-solar">
-        <div class="tarjeta-solar animar animar-delay-1">
-          <span class="icono">☀️</span>
-          <h3>Alta irradiancia</h3>
-          <p>Donde más calor hay, más sol directo incide. Esas zonas tienen el mayor potencial de generación fotovoltaica disponible.</p>
-        </div>
-        <div class="tarjeta-solar animar animar-delay-2">
-          <span class="icono">🏠</span>
-          <h3>Azoteas prioritarias</h3>
-          <p>El mapa identifica zonas con alto retorno solar para instalar paneles en vivienda popular donde los diagnósticos técnicos no llegan.</p>
-        </div>
-        <div class="tarjeta-solar animar animar-delay-3">
-          <span class="icono">👥</span>
-          <h3>Ciudadanía activa</h3>
-          <p>De consumidores de energía a productores de conocimiento ambiental que informa decisiones de política pública.</p>
-        </div>
-      </div>
-
-      <div class="ecuacion-solar animar animar-delay-2">
+    <!-- Paradoja central -->
+    <div class="paradoja-bloque animar animar-delay-2">
+      <div class="paradoja-texto">
+        <span class="paradoja-etiqueta">La paradoja urbana</span>
+        <h3>Más calor = más sol, pero menos eficiencia</h3>
         <p>
-          Calor alto <span>+</span> sin sombra <span>=</span><br>
-          <strong>oportunidad fotovoltaica</strong>
+          Un panel solar rinde al máximo a <strong>25 °C</strong>. Por cada grado que sube la temperatura a partir de ahí, pierde entre <strong>0.3% y 0.5%</strong> de su potencia. En una azotea de asfalto que llega a 60 °C, eso equivale a perder hasta el <strong>20% de su capacidad</strong>.
+        </p>
+        <p>
+          La isla de calor no impide instalar paneles — los hace menos eficientes si se instalan sin planificación. El mapa ciudadano ayuda a identificar dónde instalarlos mejor y qué zonas necesitan también vegetación para bajar la temperatura base.
         </p>
       </div>
+      <div class="paradoja-dato">
+        <div class="paradoja-numero">−20%</div>
+        <div class="paradoja-desc">de rendimiento en una azotea a 60 °C vs. condiciones ideales a 25 °C</div>
+      </div>
     </div>
-  </section>
+
+    <!-- Línea divisora -->
+    <div class="solar-divisor animar"></div>
+
+    <!-- Tres realidades -->
+    <h3 class="solar-subtitulo animar">Tres realidades en la misma ciudad</h3>
+    <div class="realidades-grid">
+
+      <div class="realidad-item animar animar-delay-1">
+        <div class="realidad-icono realidad-roja">🌡</div>
+        <h4>Azotea sin sombra</h4>
+        <p>Superficie de asfalto o concreto expuesta al sol directo. Temperatura superficial de hasta 60 °C. Un panel aquí genera electricidad, pero rinde al <strong>80%</strong> o menos. Es la zona más común en colonias populares.</p>
+        <div class="realidad-tag tag-rojo">Alto potencial · Baja eficiencia</div>
+      </div>
+
+      <div class="realidad-item animar animar-delay-2">
+        <div class="realidad-icono realidad-naranja">🏠☀️</div>
+        <h4>Azotea con panel + vegetación</h4>
+        <p>Cuando se combina la instalación fotovoltaica con plantas o techos verdes, la temperatura del panel baja y su eficiencia mejora. Es el modelo óptimo para zonas urbanas densas en México.</p>
+        <div class="realidad-tag tag-naranja">Solución recomendada</div>
+      </div>
+
+      <div class="realidad-item animar animar-delay-3">
+        <div class="realidad-icono realidad-verde">🌳</div>
+        <h4>Zona arbolada</h4>
+        <p>Temperatura superficial de ~30 °C. Un panel aquí opera cerca de sus condiciones ideales. Sin embargo, la sombra de los árboles puede reducir la radiación disponible — el balance importa.</p>
+        <div class="realidad-tag tag-verde">Alta eficiencia · Menor irradiancia</div>
+      </div>
+
+    </div>
+
+    <!-- Línea divisora -->
+    <div class="solar-divisor animar"></div>
+
+    <!-- Qué hace el mapa por esto -->
+    <div class="mapa-solar-bloque animar animar-delay-1">
+      <span class="paradoja-etiqueta">¿Para qué sirve el mapa?</span>
+      <h3>El reporte ciudadano como herramienta de planeación</h3>
+      <div class="mapa-solar-grid">
+        <div class="mapa-solar-item">
+          <span class="mapa-solar-num">01</span>
+          <p>Identifica colonias con alta temperatura y sin sombra: los sitios con mayor irradiancia disponible para paneles solares.</p>
+        </div>
+        <div class="mapa-solar-item">
+          <span class="mapa-solar-num">02</span>
+          <p>Detecta zonas donde la isla de calor es tan intensa que instalar paneles sin vegetación complementaria reduciría su eficiencia.</p>
+        </div>
+        <div class="mapa-solar-item">
+          <span class="mapa-solar-num">03</span>
+          <p>Genera información de resolución de colonia que los satélites no pueden dar, útil para programas municipales de energía solar distribuida.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ecuación visual -->
+    <div class="ecuacion-solar animar animar-delay-2">
+      <p>
+        Datos ciudadanos <span>+</span> mapa de calor <span>=</span><br>
+        <strong>instalaciones solares más inteligentes</strong>
+      </p>
+    </div>
+
+  </div>
+</section>
 
   <!-- ══════════ DATOS ABIERTOS ══════════ -->
   <section id="datos">
@@ -1803,15 +2038,11 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-        /* ════════════════════════════════════════
-       INICIALIZACIÓN
-    ════════════════════════════════════════ */
-    actualizarBarra();
+actualizarBarra();
 
   </script>
 
     <!-- ══════════ MODALES LEGALES ══════════ -->
-
 <div class="modal-overlay" id="modal-privacidad" role="dialog" aria-modal="true" aria-label="Aviso de privacidad">
   <div class="modal-caja">
     <button class="modal-cerrar" onclick="cerrarModal('modal-privacidad')" aria-label="Cerrar">✕</button>
@@ -1875,7 +2106,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
     </div>
   </div>
 </div>
-  
+
   </script>
 </body>
 </html>
