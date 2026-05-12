@@ -416,6 +416,64 @@
       border-color: transparent;
     }
 
+    .video-wrapper { margin-top: 48px; }
+.video-etiqueta {
+  font-family: var(--fuente-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--naranja);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.video-responsive {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border: 1px solid var(--gris-borde);
+}
+.video-responsive iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+.datos-duros {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+.dato-duro {
+  background: var(--gris-oscuro);
+  border-top: 2px solid var(--naranja);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dato-numero {
+  font-family: var(--fuente-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--naranja);
+  font-weight: 700;
+  line-height: 1;
+}
+.dato-desc {
+  font-size: 0.82rem;
+  color: var(--gris-claro);
+  line-height: 1.5;
+}
+.dato-desc em {
+  color: var(--gris-texto);
+  font-style: normal;
+}
+@media (max-width: 768px) {
+  .datos-duros { grid-template-columns: 1fr; }
+}
+
     /* ════════════════════════════════════════
        SECCIÓN 3 — MAPA
     ════════════════════════════════════════ */
@@ -821,7 +879,48 @@
       line-height: 1.5;
     }
 
-    /* ════════════════════════════════════════
+   /* ══════════ FUENTES ══════════ */
+.fuentes-lista {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+.fuente-item {
+  background: var(--gris-medio);
+  border-left: 3px solid var(--naranja);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fuente-tag {
+  font-family: var(--fuente-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--naranja);
+}
+.fuente-item p {
+  font-size: 0.85rem;
+  color: var(--gris-claro);
+  line-height: 1.6;
+}
+.fuente-item em { color: var(--blanco); font-style: normal; }
+.fuente-link {
+  font-family: var(--fuente-display);
+  font-size: 0.72rem;
+  color: var(--naranja);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s;
+}
+.fuente-link:hover { opacity: 0.7; }
+@media (max-width: 768px) {
+  .fuentes-lista { grid-template-columns: 1fr; }
+}
+
+/* ════════════════════════════════════════
        FOOTER
     ════════════════════════════════════════ */
     footer {
@@ -896,6 +995,96 @@
       color: var(--gris-texto) !important;
     }
     .leaflet-control-attribution a { color: var(--naranja) !important; }
+
+/* Modales legales */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.abierto {
+  display: flex;
+}
+.modal-caja {
+  background: var(--gris-oscuro);
+  border: 1px solid var(--naranja);
+  max-width: 680px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 40px;
+  position: relative;
+}
+.modal-cerrar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--gris-claro);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-cerrar:hover { color: var(--naranja); }
+.modal-titulo {
+  font-family: var(--fuente-display);
+  font-size: 1.2rem;
+  color: var(--naranja);
+  margin-bottom: 20px;
+  padding-right: 32px;
+}
+.modal-tag {
+  font-family: var(--fuente-display);
+  font-size: 0.72rem;
+  color: var(--gris-texto);
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.modal-contenido h3 {
+  font-family: var(--fuente-display);
+  font-size: 0.82rem;
+  color: var(--blanco);
+  margin: 20px 0 8px;
+  letter-spacing: 0.04em;
+}
+.modal-contenido p {
+  font-size: 0.88rem;
+  color: var(--gris-claro);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.modal-contenido strong { color: var(--blanco); }
+
+/* Links legales en footer */
+.footer-legal {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.footer-legal button {
+  background: none;
+  border: none;
+  font-family: var(--fuente-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gris-texto);
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer-legal button:hover { color: var(--naranja); }
+
   </style>
 </head>
 
@@ -914,6 +1103,8 @@
         <li><a href="#reporte">Reporta</a></li>
         <li><a href="#solar">Solar</a></li>
         <li><a href="#datos">Datos</a></li>
+        <li><a href="#fuentes">Fuentes</a></li>
+        </a></li>
       </ul>
       <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -929,6 +1120,7 @@
     <a href="#reporte" onclick="cerrarMenu()">Reporta tu zona</a>
     <a href="#solar" onclick="cerrarMenu()">Conexión solar</a>
     <a href="#datos" onclick="cerrarMenu()">Datos abiertos</a>
+    <a href="#fuentes" onclick="cerrarMenu()">Fuentes</a>
   </div>
 
   <!-- ══════════ HERO ══════════ -->
@@ -962,6 +1154,26 @@
         Las islas de calor urbano concentran temperaturas extremas en colonias enteras. El asfalto absorbe, el concreto retiene, y la ciudad hierve.
       </p>
 
+      <!-- Datos verificables -->
+<div class="datos-duros animar animar-delay-1">
+  <div class="dato-duro">
+    <span class="dato-numero">+3–4 °C</span>
+    <span class="dato-desc">Aumento de temperatura en zonas oriente de CDMX por islas de calor — <em>PINCC, UNAM 2023</em></span>
+  </div>
+  <div class="dato-duro">
+    <span class="dato-numero">70%</span>
+    <span class="dato-desc">De la población mexicana vive en metrópolis afectadas por este fenómeno — <em>Francisco Estrada Porrúa, UNAM</em></span>
+  </div>
+  <div class="dato-duro">
+    <span class="dato-numero">5.5 kWh/m²</span>
+    <span class="dato-desc">Irradiación solar media diaria en México, una de las más altas del mundo — <em>SENER / Global Solar Atlas</em></span>
+  </div>
+  <div class="dato-duro">
+    <span class="dato-numero">+300</span>
+    <span class="dato-desc">Días despejados al año en promedio nacional, potencial fotovoltaico excepcional — <em>SENER 2023</em></span>
+  </div>
+</div>
+
       <div class="tarjetas-datos">
         <div class="tarjeta-dato animar animar-delay-1">
           <div class="numero">60 °C</div>
@@ -985,6 +1197,20 @@
         </p>
       </div>
     </div>
+    <!-- Video de referencia -->
+<div class="video-wrapper animar animar-delay-3">
+  <p class="video-etiqueta">📽 Referencia audiovisual</p>
+  <div class="video-responsive">
+    <iframe
+      src="https://www.youtube.com/embed/QBER-4prGjg?si=Ie5wNfY-CjCa7z6a"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
   </section>
 
   <!-- ══════════ MAPA ══════════ -->
@@ -1224,11 +1450,62 @@
     </div>
 </section>
 
+<!-- ══════════ FUENTES ══════════ -->
+<section id="fuentes" style="border-top: 1px solid var(--naranja); padding: 80px 0; background: var(--gris-oscuro);">
+  <div class="contenedor">
+    <h2 class="seccion-titulo animar">Fuentes consultadas</h2>
+    <p class="seccion-subtitulo animar animar-delay-1">Información respaldada por instituciones académicas y gubernamentales mexicanas.</p>
+    <div class="fuentes-lista animar animar-delay-2">
+
+      <div class="fuente-item">
+        <span class="fuente-tag">UNAM · 2023</span>
+        <p>Estrada Porrúa, F. — <em>Caracterizando la isla de calor en superficie de la Zona Metropolitana del Valle de México.</em> Programa de Investigación en Cambio Climático (PINCC), UNAM.</p>
+        <a href="https://www.gaceta.unam.mx/las-islas-de-calor-aumentan-la-temperatura-en-cdmx-pincc/" target="_blank" rel="noopener" class="fuente-link">gaceta.unam.mx →</a>
+      </div>
+
+      <div class="fuente-item">
+        <span class="fuente-tag">UNAM · 2024</span>
+        <p>Pereyra Castro, K. — <em>Las Islas de Calor Urbano tienen un fuerte impacto en la salud y la energía.</em> Instituto de Geografía, UNAM.</p>
+        <a href="https://www.gaceta.unam.mx/las-islas-de-calor-urbano-tienen-un-fuerte-impacto-en-la-salud-y-la-energia/" target="_blank" rel="noopener" class="fuente-link">gaceta.unam.mx →</a>
+      </div>
+
+      <div class="fuente-item">
+        <span class="fuente-tag">UNAM · Ciencia</span>
+        <p>Luyando, E. — <em>Islas de calor, un fenómeno de las ciudades.</em> Centro de Ciencias de la Atmósfera, UNAM.</p>
+        <a href="https://ciencia.unam.mx/leer/779/islas-de-calor-un-fenomeno-de-las-ciudades" target="_blank" rel="noopener" class="fuente-link">ciencia.unam.mx →</a>
+      </div>
+
+      <div class="fuente-item">
+        <span class="fuente-tag">SENER · Gobierno de México</span>
+        <p><em>Atlas Nacional de Zonas con Alto Potencial de Energías Limpias (AZEL).</em> Secretaría de Energía.</p>
+        <a href="https://www.gob.mx/sener/articulos/atlas-nacional-de-zonas-con-alto-potencial-de-energias-limpias" target="_blank" rel="noopener" class="fuente-link">gob.mx/sener →</a>
+      </div>
+
+      <div class="fuente-item">
+        <span class="fuente-tag">Banco Mundial</span>
+        <p><em>Global Solar Atlas — México.</em> Datos de irradiación solar por ubicación geográfica.</p>
+        <a href="https://globalsolaratlas.info/download/mexico" target="_blank" rel="noopener" class="fuente-link">globalsolaratlas.info →</a>
+      </div>
+
+      <div class="fuente-item">
+        <span class="fuente-tag">UNAM · Geofísica</span>
+        <p><em>Atlas Solar / Base de Datos de Radiación Solar.</em> Instituto de Geofísica, UNAM.</p>
+        <a href="https://areas.geofisica.unam.mx/radiacion_solar/atlas.php" target="_blank" rel="noopener" class="fuente-link">geofisica.unam.mx →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
   <!-- ══════════ FOOTER ══════════ -->
   <footer>
     <div class="contenedor">
       <div class="logo-footer"><span class="acento">¡</span>Está que Arde! — Proyecto de Ciencia Ciudadana</div>
-      <p>Tarea 6 · Energías Renovables y Sociedad</p>
+      <p>Proyecto Escolar · Energías Renovables y Sociedad</p>
+      <div class="footer-legal">
+  <button onclick="abrirModal('modal-privacidad')">Aviso de Privacidad</button>
+  <button onclick="abrirModal('modal-terminos')">Términos y Condiciones</button>
+</div>
     </div>
   </footer>
 
@@ -1506,6 +1783,93 @@
       document.body.removeChild(enlace);
       URL.revokeObjectURL(url);
     });
+
+/* Modales legales */
+function abrirModal(id) {
+  document.getElementById(id).classList.add('abierto');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('abierto');
+  document.body.style.overflow = '';
+}
+// Cerrar al hacer clic fuera del modal
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('abierto');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+  </script>
+
+    <!-- ══════════ MODALES LEGALES ══════════ -->
+
+<div class="modal-overlay" id="modal-privacidad" role="dialog" aria-modal="true" aria-label="Aviso de privacidad">
+  <div class="modal-caja">
+    <button class="modal-cerrar" onclick="cerrarModal('modal-privacidad')" aria-label="Cerrar">✕</button>
+    <h2 class="modal-titulo">Aviso de Privacidad</h2>
+    <div class="modal-contenido">
+      <p class="modal-tag">En cumplimiento con la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.</p>
+
+      <h3>1. Responsable del manejo de datos</h3>
+      <p>El responsable es un alumno del Instituto de Energías Renovables, en el marco de un proyecto académico con fines exclusivamente educativos. Cualquier solicitud deberá dirigirse al responsable o al Instituto de Energías Renovables a través de sus canales institucionales.</p>
+
+      <h3>2. Naturaleza educativa y exención de responsabilidad</h3>
+      <p>Este sitio forma parte de un proyecto académico. El contenido no constituye asesoría profesional certificada, no genera obligaciones legales para la institución, y no representa una postura oficial de la universidad.</p>
+
+      <h3>3. Datos sometidos a tratamiento</h3>
+      <p><strong>Obligatorios:</strong> Colonia o zona aproximada, respuestas al formulario (temperatura percibida, sombra, superficie), comentarios opcionales.<br>
+      <strong>No se solicitan:</strong> Nombre, correo, ubicación exacta ni datos sensibles.</p>
+
+      <h3>4. Finalidades del tratamiento</h3>
+      <p><strong>Primarias:</strong> Registrar participación, analizar datos para fines educativos y científicos, generar mapas y resultados agregados.<br>
+      <strong>Secundarias:</strong> Publicar datos disociados en materiales de divulgación (requiere consentimiento).</p>
+
+      <h3>5. Transferencias de datos</h3>
+      <p>No se realizarán transferencias a terceros, salvo obligaciones legales o datos disociados.</p>
+
+      <h3>6. Medidas de seguridad</h3>
+      <p>Se implementan medidas administrativas, técnicas y físicas para proteger los datos contra daño, pérdida o acceso no autorizado.</p>
+
+      <h3>7. Consentimiento</h3>
+      <p>Al enviar el formulario, el participante otorga consentimiento tácito para las finalidades primarias.</p>
+
+      <h3>8. Carácter no institucional</h3>
+      <p>Este sitio no representa una plataforma oficial de la universidad. Es desarrollado por un alumno con fines exclusivamente académicos.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-terminos" role="dialog" aria-modal="true" aria-label="Términos y condiciones">
+  <div class="modal-caja">
+    <button class="modal-cerrar" onclick="cerrarModal('modal-terminos')" aria-label="Cerrar">✕</button>
+    <h2 class="modal-titulo">Términos y Condiciones de Uso</h2>
+    <div class="modal-contenido">
+      <p class="modal-tag">Al acceder y utilizar esta página, usted acepta los siguientes términos y condiciones.</p>
+
+      <h3>1. Uso educativo del sitio</h3>
+      <p>El contenido y herramientas disponibles están diseñados para actividades de aprendizaje y ciencia ciudadana en el marco de un proyecto académico.</p>
+
+      <h3>2. Responsabilidad del usuario</h3>
+      <p>Toda persona que ingrese información es responsable de la veracidad y contenido de los datos que proporcione. Cualquier dato personal incluido de manera voluntaria o accidental es responsabilidad exclusiva del usuario.</p>
+
+      <h3>3. Acceso por terceros</h3>
+      <p>El acceso al sitio por personas externas al curso no genera responsabilidad para la universidad ni para el alumno desarrollador. Cualquier uso por parte de terceros es exclusivamente responsabilidad de dichos usuarios.</p>
+
+      <h3>4. Limitación de responsabilidad</h3>
+      <p>El alumno desarrollador y la institución educativa no garantizan la exactitud o disponibilidad del contenido, ni asumen responsabilidad por el uso indebido del sitio.</p>
+
+      <h3>5. Propósito del contenido</h3>
+      <p>La información generada no constituye asesoría profesional ni técnica, y se utiliza únicamente con fines educativos, estadísticos y de divulgación científica.</p>
+
+      <h3>6. Aceptación</h3>
+      <p>El uso de este sitio implica la aceptación plena de estos Términos y Condiciones.</p>
+    </div>
+  </div>
+</div>
 
     /* ════════════════════════════════════════
        INICIALIZACIÓN
